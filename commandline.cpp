@@ -12,8 +12,6 @@
 #include <windows.h>
 #endif
 
-#include <iostream>
-
 #if defined(WIN32)
 #define WINDOWS
 #elif defined(__linux) || defined(__linux__)
@@ -321,9 +319,6 @@ void Commandline::io_thread_main() {
             std::lock_guard<std::mutex> guard2(m_current_buffer_mutex);
             printf("\x1b[2K\x1b[0G%s\n%s%s\x1b[%luG", to_write.c_str(), m_prompt.c_str(), m_current_buffer.c_str(), m_prompt.size() + m_cursor_pos + 1);
             fflush(stdout);
-            if (m_write_to_file) {
-                m_logfile << to_write << std::endl;
-            }
         }
     }
     // after all this, we have to output all that remains in the buffer, so we dont "lose" information
@@ -397,16 +392,6 @@ size_t Commandline::history_size() const {
 void Commandline::clear_history() {
     std::lock_guard<std::mutex> guard(m_history_mutex);
     m_history.clear();
-}
-
-bool Commandline::enable_write_to_file(const std::string& path) {
-    m_logfile_path = path;
-    m_logfile.open(m_logfile_path, std::ios::trunc | std::ios::out);
-    if (!m_logfile.is_open() || !m_logfile.good()) {
-        return false;
-    }
-    m_write_to_file = true;
-    return true;
 }
 
 void Commandline::enable_key_debug() {
